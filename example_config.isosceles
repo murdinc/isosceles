@@ -1,0 +1,61 @@
+# isosceles config
+###############################################################################################
+
+[project "MacGruber1"]
+
+    # Enabled Flag
+    #################################################################
+    enabled = true
+
+    # Initial Sync
+    #################################################################
+    initial-sync = true
+
+    # Host and Folders
+    #################################################################
+    host = "host.name.com"
+    local-folder = "/Users/USER/isosceles/PROJECT"
+    remote-folder = "/PROJECT"
+
+    # Watch Pattern
+    #################################################################
+    watch-pattern = "(.php|.css)"
+
+    # Rsync Arguments
+    #################################################################
+    rsync-arg = "-r"
+    rsync-arg = "--dry-run"
+    rsync-arg = "--stats"
+    rsync-arg = "--progress"
+    rsync-arg = "--delete"
+    rsync-arg = "--no-owner"
+    rsync-arg = "--no-group"
+
+    # Exclude From Files
+    # passed to rsync --exclude-from - todo
+    #################################################################
+    exclude-from = ".isosceles_ignore"
+    exclude-from = ".git_ignore"
+
+    # Wait between concurrent syncs, to allow for changes to batch together
+    #################################################################
+    cooldown = 1 # second
+
+    # Open the browser when active-sync is turned on
+    #################################################################
+    open-browser = true
+    url = "http://www.host.name.com"
+    desktop-notify = true
+    desktop-notify-sound = true
+
+    # Tail Logs
+    #################################################################
+    tail-error = true
+    tail-access = true
+    tail-extra = false
+
+    # Log paths
+    #################################################################
+    error-log = "/var/log/nginx/*.access.log"
+    access-log = "/var/log/nginx/*.error.log"
+    extra-log = ""
