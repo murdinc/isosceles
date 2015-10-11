@@ -14,6 +14,7 @@ To set up projects, add a .isosceles file to your root folder on OS X. An exampl
  
 **Coming Up:**
 * tail of remote logs - WIP
+* integrate rsync exclude-from flag
 
 **CLI Menu:**
 
