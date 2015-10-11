@@ -9,7 +9,6 @@ import (
 	"gopkg.in/gcfg.v1"
 )
 
-// Config struct
 type IsoscelsConfig struct {
 	Project map[string]*Project
 }
@@ -42,15 +41,12 @@ func ReadConfig() (*IsoscelsConfig, error) {
 	currentUser, _ := user.Current()
 
 	configLocation := currentUser.HomeDir + "/.isosceles"
-
 	configFile, _ := ioutil.ReadFile(configLocation)
 	configString := string(configFile)
 
 	config := IsoscelsConfig{}
 
 	err := gcfg.ReadStringInto(&config, configString)
-
-	// Bail on error
 	if err != nil {
 		return &config, err
 	}

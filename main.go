@@ -7,8 +7,6 @@ import (
 	"github.com/murdinc/cli"
 	"github.com/murdinc/isosceles/active_sync"
 	"github.com/murdinc/isosceles/config"
-
-	//"github.com/Terry-Mao/goconf"
 )
 
 func main() {

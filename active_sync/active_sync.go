@@ -137,7 +137,6 @@ func syncQueue(ch chan syncRequest) {
 		select {
 		case sr = <-ch:
 			fileCount++
-			//fmt.Println("Packing received cake: ", s)
 		default:
 			currentCount := fileCount
 			now := time.Now()
@@ -153,7 +152,7 @@ func syncQueue(ch chan syncRequest) {
 				noteStr := fmt.Sprintf("Trigger: %s", sr.FileName)
 
 				if fileCount > 1 {
-					noteStr = fmt.Sprintf("Completed Sync of [%d] Triggers.", fileCount)
+					noteStr = fmt.Sprintf("Completed Sync of [%d] trigger(s).", fileCount)
 				}
 
 				note := gosxnotifier.NewNotification(noteStr)
@@ -162,11 +161,11 @@ func syncQueue(ch chan syncRequest) {
 					note.Subtitle = "File Sync Complete"
 					note.Sound = gosxnotifier.Bottle
 					note.Link = sr.URL
-					note.AppIcon = "logo.png"
+					note.AppIcon = "images/logo.png"
 				} else {
 					note.Subtitle = "File Sync Failure!"
 					note.Sound = gosxnotifier.Sosumi
-					note.AppIcon = "logo-failure.png"
+					note.AppIcon = "images/logo-failure.png"
 					log("runSync", err)
 				}
 
@@ -175,7 +174,7 @@ func syncQueue(ch chan syncRequest) {
 					log("Error with Desktop Notification!", err)
 				}
 
-				log(fmt.Sprintf("[%s] Completed Sync of [%d] Triggers.", sr.ProjectName, fileCount), nil)
+				log(fmt.Sprintf("[%s] Completed Sync of [%d] trigger(s).", sr.ProjectName, fileCount), nil)
 				lastSync = time.Now()
 				fileCount = fileCount - currentCount
 			}

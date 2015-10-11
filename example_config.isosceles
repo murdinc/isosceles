@@ -3,25 +3,25 @@
 
 [project "MacGruber1"]
 
-    # Enabled Flag
+    # Enabled this project in active-sync
     #################################################################
     enabled = true
 
-    # Initial Sync
+    # Perform Initial Sync when active-sync is started?
     #################################################################
     initial-sync = true
 
-    # Host and Folders
+    # Host and Folders Information
     #################################################################
     host = "host.name.com"
     local-folder = "/Users/USER/isosceles/PROJECT"
     remote-folder = "/PROJECT"
 
-    # Watch Pattern
+    # Watch Pattern for file change triggers
     #################################################################
     watch-pattern = "(.php|.css)"
 
-    # Rsync Arguments
+    # Rsync Arguments, joined in order
     #################################################################
     rsync-arg = "-r"
     rsync-arg = "--dry-run"
@@ -37,18 +37,22 @@
     exclude-from = ".isosceles_ignore"
     exclude-from = ".git_ignore"
 
-    # Wait between concurrent syncs, to allow for changes to batch together
+    # Wait perioed (in seconds) between concurrent syncs, to allow for changes
+    # to batch together if there are a lot of files
     #################################################################
-    cooldown = 1 # second
+    cooldown = 1
 
     # Open the browser when active-sync is turned on
     #################################################################
     open-browser = true
     url = "http://www.host.name.com"
+
+    # Mac OSX Notifications when sync triggers are executed
+    #################################################################
     desktop-notify = true
     desktop-notify-sound = true
 
-    # Tail Logs
+    # Enable/Disable log tails - todo
     #################################################################
     tail-error = true
     tail-access = true
