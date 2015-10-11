@@ -20,7 +20,7 @@ To set up projects, add a .isosceles file to your root folder on OS X. An exampl
 
 ![screenshot1](screenshots/help.png)
 
-**Listing Active Projects:**
+**Listing All Projects:**
 
 ![screenshot1](screenshots/active-projects.png)
 
