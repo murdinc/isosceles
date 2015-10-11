@@ -8,7 +8,7 @@ To set up projects, add a .isosceles file to your root folder on OS X. An exampl
 **Features:** 
 * Watches an entire directory recursively for changes that match a specific pattern
 * Kicks off an rsync when a trigger is detected.
-* Pools triggers that happen after the cooldown period (set in the config), to keep from repeating useless syncs.
+* Pools triggers that happen during the cooldown period (set in the config), to keep from repeating useless syncs.
 * rsync flags are fully customizable in the config
 * Desktop Notifications can be enabled, with or without sound, for when triggers are processed. 
  
