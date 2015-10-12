@@ -30,7 +30,7 @@ func main() {
 
 				log("Enabled Projects:", nil)
 				cfg.ListEnabledProjects()
-				log("Starting Active Sync..", nil)
+				log("Starting Active Sync... press q + return to exit", nil)
 				active_sync.StartActiveSync(cfg) // blocking
 			},
 		},

@@ -1,6 +1,7 @@
 package active_sync
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -22,24 +23,26 @@ type syncTask struct {
 }
 
 type syncRequest struct {
-	ProjectName   string
-	Local_Folder  string
-	Remote_Folder string
-	Host          string
-	URL           string
-	FileName      string
-	CoolDown      int
-	Args          []string
+	ProjectName          string
+	Local_Folder         string
+	Remote_Folder        string
+	Host                 string
+	URL                  string
+	FileName             string
+	CoolDown             int
+	Args                 []string
+	Desktop_Notify       bool
+	Desktop_Notify_Sound bool
 }
 
 func StartActiveSync(cfg *config.IsoscelsConfig) {
 
-	// Create a pipeline
-	p := goauto.NewPipeline("ActiveSync™", goauto.Silent)
-	p.OSX = true
-	defer p.Stop()
-
 	for project, meta := range cfg.Project {
+
+		// Create a pipeline
+		p := goauto.NewPipeline("ActiveSync™", goauto.Silent)
+		p.OSX = true
+		defer p.Stop()
 
 		if meta.Enabled != true {
 			log(fmt.Sprintf("Skipping Project: [%s], since its disabled...", project), nil)
@@ -84,19 +87,30 @@ func StartActiveSync(cfg *config.IsoscelsConfig) {
 		if meta.Initial_Sync == true {
 			logdim("  ╚═══ Running Initial Sync...", nil)
 			ch <- syncRequest{
-				ProjectName:   project,
-				Local_Folder:  meta.Local_Folder,
-				Remote_Folder: meta.Remote_Folder,
-				Host:          meta.Host,
-				URL:           meta.URL,
-				FileName:      "Initial Sync",
-				CoolDown:      meta.CoolDown,
-				Args:          rsyncArgs,
+				ProjectName:          project,
+				Local_Folder:         meta.Local_Folder,
+				Remote_Folder:        meta.Remote_Folder,
+				Host:                 meta.Host,
+				URL:                  meta.URL,
+				FileName:             "Initial Sync",
+				CoolDown:             meta.CoolDown,
+				Args:                 rsyncArgs,
+				Desktop_Notify:       meta.Desktop_Notify,
+				Desktop_Notify_Sound: meta.Desktop_Notify_Sound,
 			}
 		}
 
+		go p.Start()
 	}
-	p.Start()
+
+	for {
+		reader := bufio.NewReader(os.Stdin)
+		rune, _, _ := reader.ReadRune()
+		if rune == 'q' {
+			return
+		}
+	}
+
 }
 
 func NewSyncTask(name string, project *config.Project, ch chan syncRequest, cooldown int) goauto.Tasker {
@@ -113,14 +127,16 @@ func (gt *syncTask) Run(info *goauto.TaskInfo) (err error) {
 	rsyncArgs := append(gt.project.Rsync_Arg, gt.project.Local_Folder, fmt.Sprintf("%s:%s", gt.project.Host, gt.project.Remote_Folder))
 
 	gt.ch <- syncRequest{
-		ProjectName:   gt.name,
-		Local_Folder:  gt.project.Local_Folder,
-		Remote_Folder: gt.project.Remote_Folder,
-		Host:          gt.project.Host,
-		URL:           gt.project.URL,
-		FileName:      trimedFileName,
-		CoolDown:      gt.project.CoolDown,
-		Args:          rsyncArgs,
+		ProjectName:          gt.name,
+		Local_Folder:         gt.project.Local_Folder,
+		Remote_Folder:        gt.project.Remote_Folder,
+		Host:                 gt.project.Host,
+		URL:                  gt.project.URL,
+		FileName:             trimedFileName,
+		CoolDown:             gt.project.CoolDown,
+		Args:                 rsyncArgs,
+		Desktop_Notify:       gt.project.Desktop_Notify,
+		Desktop_Notify_Sound: gt.project.Desktop_Notify_Sound,
 	}
 
 	return nil
@@ -144,8 +160,8 @@ func syncQueue(ch chan syncRequest) {
 			if td > float64(sr.CoolDown) && fileCount > 0 {
 				gocmd := exec.Command("rsync", sr.Args...)
 
-				log(fmt.Sprintf("[%s] Starting rsync...", sr.ProjectName), nil)
-				logdim(fmt.Sprintf("  ╚═══ cmd: rsync %s", strings.Join(sr.Args, " ")), nil)
+				logdim(fmt.Sprintf("[%s] Starting rsync...\n  ╚═══ cmd: rsync %s", sr.ProjectName, strings.Join(sr.Args, " ")), nil)
+				//logdim(fmt.Sprintf("  ╚═══ cmd: rsync %s", strings.Join(sr.Args, " ")), nil)
 
 				err := gocmd.Run()
 
@@ -159,22 +175,32 @@ func syncQueue(ch chan syncRequest) {
 				note.Title = sr.ProjectName
 				if err == nil {
 					note.Subtitle = "File Sync Complete"
-					note.Sound = gosxnotifier.Bottle
+
+					if sr.Desktop_Notify_Sound == true {
+						note.Sound = gosxnotifier.Bottle
+					}
 					note.Link = sr.URL
 					note.AppIcon = "images/logo.png"
+					log(fmt.Sprintf("[%s] Completed Sync of [%d] trigger(s).", sr.ProjectName, fileCount), nil)
 				} else {
 					note.Subtitle = "File Sync Failure!"
-					note.Sound = gosxnotifier.Sosumi
+
+					if sr.Desktop_Notify_Sound == true {
+						note.Sound = gosxnotifier.Sosumi
+					}
 					note.AppIcon = "images/logo-failure.png"
 					log("runSync", err)
+					log(fmt.Sprintf("[%s] Failed Sync of [%d] trigger(s).", sr.ProjectName, fileCount), nil)
 				}
 
-				err = note.Push()
-				if err != nil {
-					log("Error with Desktop Notification!", err)
+				if sr.Desktop_Notify == true {
+					err = note.Push()
+					if err != nil {
+						log("Error with Desktop Notification!", err)
+
+					}
 				}
 
-				log(fmt.Sprintf("[%s] Completed Sync of [%d] trigger(s).", sr.ProjectName, fileCount), nil)
 				lastSync = time.Now()
 				fileCount = fileCount - currentCount
 			}

@@ -29,7 +29,6 @@ type Project struct {
 	Desktop_Notify       bool
 	Desktop_Notify_Sound bool
 	Initial_Sync         bool
-	Exclude_From         []string
 	CoolDown             int
 	Watch_Pattern        string
 	Rsync_Arg            []string
@@ -82,8 +81,6 @@ var ProjectsTemplate = `{{range $name, $project := .Project}}
     {{ ansi "bright"}}{{ ansi "fgwhite"}}          Desktop Notify: {{ if $project.Desktop_Notify }}{{ ansi "fggreen"}}✓ {{else}}{{ ansi "fgred"}}X {{ end }}{{ansi ""}}
     {{ ansi "bright"}}{{ ansi "fgwhite"}}    Desktop Notify Sound: {{ if $project.Desktop_Notify }}{{ ansi "fggreen"}}✓ {{else}}{{ ansi "fgred"}}X {{ end }}{{ansi ""}}
 
-    {{ range $exclude_from := $project.Exclude_From }}{{ ansi "bright"}}{{ ansi "fgwhite"}}             Exclude From: {{ ansi ""}}{{ ansi "fgcyan"}}"{{ $exclude_from }}"{{ ansi ""}}
-    {{ end }}
     {{ ansi "bright"}}{{ ansi "fgwhite"}}               Error Log: {{ ansi ""}}{{ ansi "fgcyan"}}{{ $project.Error_Log }}{{ansi ""}}
     {{ ansi "bright"}}{{ ansi "fgwhite"}}              Access Log: {{ ansi ""}}{{ ansi "fgcyan"}}{{ $project.Access_Log }}{{ansi ""}}
     {{ ansi "bright"}}{{ ansi "fgwhite"}}               Extra Log: {{ ansi ""}}{{ ansi "fgcyan"}}{{ $project.Extra_Log }}{{ansi ""}}
