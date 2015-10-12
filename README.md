@@ -100,6 +100,4 @@ To set up projects, add a .isosceles file to your root folder on OS X. An exampl
     #################################################################
     error-log = "/var/log/nginx/*.access.log"
     access-log = "/var/log/nginx/*.error.log"
-    extra-log = ""
-    
-    ```
+    extra-log = "" 
