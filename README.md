@@ -14,7 +14,6 @@ To set up projects, add a .isosceles file to your root folder on OS X. An exampl
  
 **Coming Up:**
 * tail of remote logs - WIP
-* integrate rsync exclude-from flag
 
 **CLI Menu:**
 
@@ -68,12 +67,6 @@ To set up projects, add a .isosceles file to your root folder on OS X. An exampl
     rsync-arg = "--delete"
     rsync-arg = "--no-owner"
     rsync-arg = "--no-group"
-
-    # Exclude From Files
-    # passed to rsync --exclude-from - todo
-    #################################################################
-    exclude-from = ".isosceles_ignore"
-    exclude-from = ".git_ignore"
 
     # Wait perioed (in seconds) between concurrent syncs, to allow for changes
     # to batch together if there are a lot of files

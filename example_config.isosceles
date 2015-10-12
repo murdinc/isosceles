@@ -31,12 +31,6 @@
     rsync-arg = "--no-owner"
     rsync-arg = "--no-group"
 
-    # Exclude From Files
-    # passed to rsync --exclude-from - todo
-    #################################################################
-    exclude-from = ".isosceles_ignore"
-    exclude-from = ".git_ignore"
-
     # Wait perioed (in seconds) between concurrent syncs, to allow for changes
     # to batch together if there are a lot of files
     #################################################################
