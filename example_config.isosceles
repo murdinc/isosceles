@@ -14,22 +14,26 @@
     # Host and Folders Information
     #################################################################
     host = "host.name.com"
-    local-folder = "/Users/USER/isosceles/PROJECT"
-    remote-folder = "/PROJECT"
+    local-folder = "/Users/USER/isosceles/PROJECT/"
+    remote-folder = "/PROJECT/"
 
     # Watch Pattern for file change triggers
     #################################################################
-    watch-pattern = "(.php|.css)"
+    watch-pattern = "(.php|.html|.css|.htm|.js)"
 
     # Rsync Arguments, joined in order
     #################################################################
+    rsync-arg = "-l"
     rsync-arg = "-r"
+    rsync-arg = "-O"
     rsync-arg = "--dry-run"
     rsync-arg = "--stats"
     rsync-arg = "--progress"
     rsync-arg = "--delete"
     rsync-arg = "--no-owner"
     rsync-arg = "--no-group"
+    rsync-arg = "--exclude=.git"
+    rsync-arg = "--exclude=.git_ignore"
 
     # Wait perioed (in seconds) between concurrent syncs, to allow for changes
     # to batch together if there are a lot of files
