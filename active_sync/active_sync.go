@@ -146,6 +146,7 @@ func (gt *syncTask) Run(info *goauto.TaskInfo) (err error) {
 func syncQueue(ch chan syncRequest) {
 	fileCount := 0
 	lastSync := time.Now()
+	lastTrigger := lastSync
 	sr := syncRequest{}
 
 	for {
@@ -153,15 +154,18 @@ func syncQueue(ch chan syncRequest) {
 		select {
 		case sr = <-ch:
 			fileCount++
+			lastTrigger = time.Now()
 		default:
 			currentCount := fileCount
 			now := time.Now()
-			td := now.Sub(lastSync).Seconds()
-			if td > float64(sr.CoolDown) && fileCount > 0 {
+			lsTD := now.Sub(lastSync).Seconds()    // last sync time difference
+			ltTD := now.Sub(lastTrigger).Seconds() // last trigger time difference
+
+			if lsTD > float64(sr.CoolDown) && fileCount > 0 && ltTD > .5 {
+
 				gocmd := exec.Command("rsync", sr.Args...)
 
 				logdim(fmt.Sprintf("[%s] Starting rsync...\n  ╚═══ cmd: rsync %s", sr.ProjectName, strings.Join(sr.Args, " ")), nil)
-				//logdim(fmt.Sprintf("  ╚═══ cmd: rsync %s", strings.Join(sr.Args, " ")), nil)
 
 				err := gocmd.Run()
 
@@ -203,6 +207,7 @@ func syncQueue(ch chan syncRequest) {
 
 				lastSync = time.Now()
 				fileCount = fileCount - currentCount
+
 			}
 		}
 
