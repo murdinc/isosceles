@@ -3,7 +3,7 @@ Remote Development Tool
 
 This is a tool built out of a desire to work locally in an environment set up for remote development. I got tired of the lag of a mounted sshfs volume. It's main and only feature is "active-sync", currently - but I hope to add more utilities to it as needed. 
 
-To set up projects, add a .isosceles file to your root folder on OS X. An example is located in the example_config.isosceles file in this repo and at the end of the README. 
+To set up projects, add an .isosceles file to your root folder on OS X. An example is located in the example_config.isosceles file in this repo and at the end of the README. 
 
 **Features:** 
 * Watches an entire directory recursively for changes that match a specific pattern
