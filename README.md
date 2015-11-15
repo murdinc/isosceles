@@ -72,7 +72,7 @@ To set up projects, add an .isosceles file to your user folder on OS X. An examp
     rsync-arg = "--exclude=.git"
     rsync-arg = "--exclude=.git_ignore"
 
-    # Wait perioed (in seconds) between concurrent syncs, to allow for changes
+    # Wait period (in seconds) between concurrent syncs, to allow for changes
     # to batch together if there are a lot of files
     #################################################################
     cooldown = 1
