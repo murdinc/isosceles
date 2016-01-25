@@ -1,5 +1,7 @@
 # isosceles
-Remote Development Tool
+> Remote Development Tool
+
+[![Build Status](https://travis-ci.org/murdinc/isosceles.svg)](https://travis-ci.org/murdinc/isosceles)
 
 This is a tool built out of a desire to work locally in an environment set up for remote development. I got tired of the lag of a mounted sshfs volume. It's main and only feature is "active-sync", currently - but I hope to add more utilities to it as needed.
 
