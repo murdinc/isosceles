@@ -57,6 +57,7 @@ func StartActiveSync(cfg *config.IsoscelsConfig) {
 		wf := goauto.NewWorkflow(NewSyncTask(project, meta))
 
 		// Add a file pattern to match
+		fmt.Printf("WATHC PATHERN: %s", meta.Watch_Pattern)
 		if err := wf.WatchPattern(meta.Watch_Pattern); err != nil {
 			panic(err)
 		}

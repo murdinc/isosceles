@@ -19,7 +19,7 @@
 
     # Watch Pattern for file change triggers
     #################################################################
-    watch-pattern = "(.php|.html|.css|.htm|.js)"
+    watch-pattern = "(.*\\.php|.*\\.css|.*\\.html|.*\\.js)"
 
     # Rsync Arguments, joined in order
     #################################################################
