@@ -3,19 +3,37 @@
 
 [![Build Status](https://travis-ci.org/murdinc/isosceles.svg)](https://travis-ci.org/murdinc/isosceles)
 
-This is a tool built out of a desire to work locally in an environment set up for remote development. I got tired of the lag of a mounted sshfs volume. It's main and only feature is "active-sync", currently - but I hope to add more utilities to it as needed.
+## Intro
+**isosceles** a tool built out of a desire to work locally in an environment set up for remote development. I got tired of the lag of a mounted sshfs volume. It's main and only feature is "active-sync", currently - but I hope to add more utilities to it as needed.
 
 To set up projects, add an .isosceles file to your user folder on OS X. An example is located in the example_config.isosceles file in this repo and at the end of the README. A compiled executable is located in the bin folder, if you don't want to run golang and compile it yourself.
 
-**Features:**
+## Features
 * Watches an entire directory recursively for changes that match a specific pattern
 * Kicks off an rsync when a trigger is detected.
 * Pools triggers that happen during the cooldown period (set in the config), to keep from repeating useless syncs.
 * rsync flags are fully customizable in the config
 * Desktop Notifications can be enabled, with or without sound, for when triggers are processed.
 
-**Coming Up:**
-* tail of remote logs - WIP
+## Installation
+1. Install Go (if you haven't already): https://golang.org/doc/install
+
+2. Download and install crusher:
+
+  `$ go get -u github.com/murdinc/isosceles`
+
+3. If `$GOPATH/bin` is not yet in your `$PATH` (check with `$ echo $PATH`):
+
+  `$ export PATH="$PATH:$GOPATH/bin"`
+
+4. Test it! `$ go test github.com/murdinc/isosceles/...`
+
+```
+$ go test github.com/murdinc/isosceles/...
+ok  	github.com/murdinc/isosceles	0.010s
+```
+
+## Screenshots
 
 **CLI Menu:**
 
@@ -34,6 +52,12 @@ To set up projects, add an .isosceles file to your user folder on OS X. An examp
 ![screenshot1](screenshots/desktop-notification.png)
 
 **Example configuration: (goes in ~/.isosceles)**
+
+
+## Roadmap
+* tail of remote logs - WIP
+
+## Example Config
 
 ```
 
@@ -58,7 +82,7 @@ To set up projects, add an .isosceles file to your user folder on OS X. An examp
 
     # Watch Pattern for file change triggers
     #################################################################
-    watch-pattern = "(.php|.html|.css|.htm|.js)"
+    watch-pattern = "(.*\\.php|.*\\.css|.*\\.html|.*\\.js)"
 
     # Rsync Arguments, joined in order
     #################################################################
