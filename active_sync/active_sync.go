@@ -18,21 +18,8 @@ import (
 type syncTask struct {
 	name     string
 	project  *config.Project
-	ch       chan syncRequest
-	cooldown int
-}
-
-type syncRequest struct {
-	ProjectName          string
-	Local_Folder         string
-	Remote_Folder        string
-	Host                 string
-	URL                  string
-	FileName             string
-	CoolDown             int
-	Args                 []string
-	Desktop_Notify       bool
-	Desktop_Notify_Sound bool
+	wait     int
+	triggers int
 }
 
 func StartActiveSync(cfg *config.IsoscelsConfig) {
@@ -59,7 +46,6 @@ func StartActiveSync(cfg *config.IsoscelsConfig) {
 		if meta.Open_Browser == true {
 			logdim("  ╚═══ Opening Browser...", nil)
 			webbrowser.Open(meta.URL)
-
 		}
 
 		// Watch directories recursively, ignoring hidden directories
@@ -67,11 +53,8 @@ func StartActiveSync(cfg *config.IsoscelsConfig) {
 			panic(err)
 		}
 
-		ch := make(chan syncRequest)
-		go syncQueue(ch)
-
 		// Create a workflow
-		wf := goauto.NewWorkflow(NewSyncTask(project, meta, ch, meta.CoolDown))
+		wf := goauto.NewWorkflow(NewSyncTask(project, meta))
 
 		// Add a file pattern to match
 		if err := wf.WatchPattern(meta.Watch_Pattern); err != nil {
@@ -81,26 +64,14 @@ func StartActiveSync(cfg *config.IsoscelsConfig) {
 		// Add workflow to pipeline
 		p.Add(wf)
 
-		rsyncArgs := append(meta.Rsync_Arg, meta.Local_Folder, fmt.Sprintf("%s:%s", meta.Host, meta.Remote_Folder))
+		go p.Start()
 
 		// Run an initial sync
 		if meta.Initial_Sync == true {
 			logdim("  ╚═══ Running Initial Sync...", nil)
-			ch <- syncRequest{
-				ProjectName:          project,
-				Local_Folder:         meta.Local_Folder,
-				Remote_Folder:        meta.Remote_Folder,
-				Host:                 meta.Host,
-				URL:                  meta.URL,
-				FileName:             "Initial Sync",
-				CoolDown:             meta.CoolDown,
-				Args:                 rsyncArgs,
-				Desktop_Notify:       meta.Desktop_Notify,
-				Desktop_Notify_Sound: meta.Desktop_Notify_Sound,
-			}
+			wf.Run(&goauto.TaskInfo{Src: "Initial Sync"})
 		}
 
-		go p.Start()
 	}
 
 	for {
@@ -113,105 +84,82 @@ func StartActiveSync(cfg *config.IsoscelsConfig) {
 
 }
 
-func NewSyncTask(name string, project *config.Project, ch chan syncRequest, cooldown int) goauto.Tasker {
-	return &syncTask{name: name, project: project, ch: ch, cooldown: cooldown}
+func NewSyncTask(name string, project *config.Project) goauto.Tasker {
+	return &syncTask{name: name, project: project}
 }
 
-func (gt *syncTask) Run(info *goauto.TaskInfo) (err error) {
+func (task *syncTask) Run(info *goauto.TaskInfo) (err error) {
 	info.Buf.Reset()
 
-	trimedFileName := strings.TrimPrefix(info.Src, gt.project.Local_Folder)
-	info.Target = fmt.Sprintf("%s%s", gt.project.Remote_Folder, trimedFileName)
-	logdim(fmt.Sprintf("[%s] File modified: %s", gt.name, trimedFileName), nil)
+	trimedFileName := strings.TrimPrefix(info.Src, task.project.Local_Folder)
+	info.Target = fmt.Sprintf("%s%s", task.project.Remote_Folder, trimedFileName)
+	logdim(fmt.Sprintf("[%s] File modified: %s", task.name, trimedFileName), nil)
 
-	rsyncArgs := append(gt.project.Rsync_Arg, gt.project.Local_Folder, fmt.Sprintf("%s:%s", gt.project.Host, gt.project.Remote_Folder))
+	// If we aren't already waiting for a batch of files, start
+	if task.wait < 1 {
+		task.wait = task.project.CoolDown
+		task.triggers = 1
 
-	gt.ch <- syncRequest{
-		ProjectName:          gt.name,
-		Local_Folder:         gt.project.Local_Folder,
-		Remote_Folder:        gt.project.Remote_Folder,
-		Host:                 gt.project.Host,
-		URL:                  gt.project.URL,
-		FileName:             trimedFileName,
-		CoolDown:             gt.project.CoolDown,
-		Args:                 rsyncArgs,
-		Desktop_Notify:       gt.project.Desktop_Notify,
-		Desktop_Notify_Sound: gt.project.Desktop_Notify_Sound,
+		go func() {
+			for task.wait > 0 {
+				time.Sleep(time.Second)
+				task.wait--
+			}
+
+			rsyncArgs := append(task.project.Rsync_Arg, task.project.Local_Folder, fmt.Sprintf("%s:%s", task.project.Host, task.project.Remote_Folder))
+
+			gocmd := exec.Command("rsync", rsyncArgs...)
+
+			logdim(fmt.Sprintf("[%s] Starting rsync...\n  ╚═══ cmd: rsync %s", task.name, strings.Join(rsyncArgs, " ")), nil)
+
+			err := gocmd.Run()
+
+			noteStr := fmt.Sprintf("Trigger: %s", trimedFileName)
+
+			if task.triggers > 1 {
+				noteStr = fmt.Sprintf("Completed Sync of [%d] trigger(s).", task.triggers)
+			}
+
+			note := gosxnotifier.NewNotification(noteStr)
+			note.Title = task.name
+			if err == nil {
+				note.Subtitle = "File Sync Complete"
+
+				if task.project.Desktop_Notify_Sound == true {
+					note.Sound = gosxnotifier.Bottle
+				}
+				note.Link = task.project.URL
+				note.AppIcon = "images/logo.png"
+				log(fmt.Sprintf("[%s] Completed Sync of [%d] trigger(s).", task.name, task.triggers), nil)
+			} else {
+				note.Subtitle = "File Sync Failure!"
+
+				if task.project.Desktop_Notify_Sound == true {
+					note.Sound = gosxnotifier.Sosumi
+				}
+				note.AppIcon = "images/logo-failure.png"
+				log("runSync", err)
+				log(fmt.Sprintf("[%s] Failed Sync of [%d] trigger(s).", task.name, task.triggers), nil)
+			}
+
+			if task.project.Desktop_Notify == true {
+				err = note.Push()
+				if err != nil {
+					log("Error with Desktop Notification!", err)
+
+				}
+			}
+
+		}()
+
+	} else {
+		// Just reset our cooldown and increment triggers
+		task.wait = task.project.CoolDown
+		task.triggers++
 	}
 
 	return nil
 
-}
-
-func syncQueue(ch chan syncRequest) {
-	fileCount := 0
-	lastSync := time.Now()
-	lastTrigger := lastSync
-	sr := syncRequest{}
-
-	for {
-
-		select {
-		case sr = <-ch:
-			fileCount++
-			lastTrigger = time.Now()
-		default:
-			currentCount := fileCount
-			now := time.Now()
-			lsTD := now.Sub(lastSync).Seconds()    // last sync time difference
-			ltTD := now.Sub(lastTrigger).Seconds() // last trigger time difference
-
-			if lsTD > float64(sr.CoolDown) && fileCount > 0 && ltTD > .5 {
-
-				gocmd := exec.Command("rsync", sr.Args...)
-
-				logdim(fmt.Sprintf("[%s] Starting rsync...\n  ╚═══ cmd: rsync %s", sr.ProjectName, strings.Join(sr.Args, " ")), nil)
-
-				err := gocmd.Run()
-
-				noteStr := fmt.Sprintf("Trigger: %s", sr.FileName)
-
-				if fileCount > 1 {
-					noteStr = fmt.Sprintf("Completed Sync of [%d] trigger(s).", fileCount)
-				}
-
-				note := gosxnotifier.NewNotification(noteStr)
-				note.Title = sr.ProjectName
-				if err == nil {
-					note.Subtitle = "File Sync Complete"
-
-					if sr.Desktop_Notify_Sound == true {
-						note.Sound = gosxnotifier.Bottle
-					}
-					note.Link = sr.URL
-					note.AppIcon = "images/logo.png"
-					log(fmt.Sprintf("[%s] Completed Sync of [%d] trigger(s).", sr.ProjectName, fileCount), nil)
-				} else {
-					note.Subtitle = "File Sync Failure!"
-
-					if sr.Desktop_Notify_Sound == true {
-						note.Sound = gosxnotifier.Sosumi
-					}
-					note.AppIcon = "images/logo-failure.png"
-					log("runSync", err)
-					log(fmt.Sprintf("[%s] Failed Sync of [%d] trigger(s).", sr.ProjectName, fileCount), nil)
-				}
-
-				if sr.Desktop_Notify == true {
-					err = note.Push()
-					if err != nil {
-						log("Error with Desktop Notification!", err)
-
-					}
-				}
-
-				lastSync = time.Now()
-				fileCount = fileCount - currentCount
-
-			}
-		}
-
-	}
 }
 
 // Log Functions
