@@ -18,7 +18,7 @@ To set up projects, add an .isosceles file to your user folder on OS X. An examp
 ## Installation
 1. Install Go (if you haven't already): https://golang.org/doc/install
 
-2. Download and install crusher:
+2. Download and install isosceles:
 
   `$ go get -u github.com/murdinc/isosceles`
 
