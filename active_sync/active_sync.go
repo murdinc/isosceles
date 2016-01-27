@@ -16,10 +16,11 @@ import (
 )
 
 type syncTask struct {
-	name     string
-	project  *config.Project
-	wait     int
-	triggers int
+	name       string
+	project    *config.Project
+	wait       int
+	triggers   int
+	batchCount int
 }
 
 func StartActiveSync(cfg *config.IsoscelsConfig) {
@@ -57,7 +58,6 @@ func StartActiveSync(cfg *config.IsoscelsConfig) {
 		wf := goauto.NewWorkflow(NewSyncTask(project, meta))
 
 		// Add a file pattern to match
-		fmt.Printf("WATHC PATHERN: %s", meta.Watch_Pattern)
 		if err := wf.WatchPattern(meta.Watch_Pattern); err != nil {
 			panic(err)
 		}
@@ -97,7 +97,7 @@ func (task *syncTask) Run(info *goauto.TaskInfo) (err error) {
 	logdim(fmt.Sprintf("[%s] File modified: %s", task.name, trimedFileName), nil)
 
 	// If we aren't already waiting for a batch of files, start
-	if task.wait < 1 {
+	if task.wait < 1 && task.batchCount < 1 {
 		task.wait = task.project.CoolDown
 		task.triggers = 1
 
@@ -107,48 +107,56 @@ func (task *syncTask) Run(info *goauto.TaskInfo) (err error) {
 				task.wait--
 			}
 
-			rsyncArgs := append(task.project.Rsync_Arg, task.project.Local_Folder, fmt.Sprintf("%s:%s", task.project.Host, task.project.Remote_Folder))
+			for task.triggers > 0 {
+				task.batchCount = task.triggers
 
-			gocmd := exec.Command("rsync", rsyncArgs...)
+				rsyncArgs := append(task.project.Rsync_Arg, task.project.Local_Folder, fmt.Sprintf("%s:%s", task.project.Host, task.project.Remote_Folder))
 
-			logdim(fmt.Sprintf("[%s] Starting rsync...\n  ╚═══ cmd: rsync %s", task.name, strings.Join(rsyncArgs, " ")), nil)
+				gocmd := exec.Command("rsync", rsyncArgs...)
 
-			err := gocmd.Run()
+				logdim(fmt.Sprintf("[%s] Starting rsync...\n  ╚═══ cmd: rsync %s", task.name, strings.Join(rsyncArgs, " ")), nil)
 
-			noteStr := fmt.Sprintf("Trigger: %s", trimedFileName)
+				err := gocmd.Run()
 
-			if task.triggers > 1 {
-				noteStr = fmt.Sprintf("Completed Sync of [%d] trigger(s).", task.triggers)
-			}
+				noteStr := fmt.Sprintf("Trigger: %s", trimedFileName)
 
-			note := gosxnotifier.NewNotification(noteStr)
-			note.Title = task.name
-			if err == nil {
-				note.Subtitle = "File Sync Complete"
-
-				if task.project.Desktop_Notify_Sound == true {
-					note.Sound = gosxnotifier.Bottle
+				if task.batchCount > 1 {
+					noteStr = fmt.Sprintf("Completed Sync of [%d] trigger(s).", task.batchCount)
 				}
-				note.Link = task.project.URL
-				note.AppIcon = "images/logo.png"
-				log(fmt.Sprintf("[%s] Completed Sync of [%d] trigger(s).", task.name, task.triggers), nil)
-			} else {
-				note.Subtitle = "File Sync Failure!"
 
-				if task.project.Desktop_Notify_Sound == true {
-					note.Sound = gosxnotifier.Sosumi
+				note := gosxnotifier.NewNotification(noteStr)
+				note.Title = task.name
+				if err == nil {
+					note.Subtitle = "File Sync Complete"
+
+					if task.project.Desktop_Notify_Sound == true {
+						note.Sound = gosxnotifier.Bottle
+					}
+					note.Link = task.project.URL
+					note.AppIcon = "images/logo.png"
+					log(fmt.Sprintf("[%s] Completed Sync of [%d] trigger(s).", task.name, task.batchCount), nil)
+				} else {
+					note.Subtitle = "File Sync Failure!"
+
+					if task.project.Desktop_Notify_Sound == true {
+						note.Sound = gosxnotifier.Sosumi
+					}
+					note.AppIcon = "images/logo-failure.png"
+					log("runSync", err)
+					log(fmt.Sprintf("[%s] Failed Sync of [%d] trigger(s).", task.name, task.batchCount), nil)
 				}
-				note.AppIcon = "images/logo-failure.png"
-				log("runSync", err)
-				log(fmt.Sprintf("[%s] Failed Sync of [%d] trigger(s).", task.name, task.triggers), nil)
-			}
 
-			if task.project.Desktop_Notify == true {
-				err = note.Push()
-				if err != nil {
-					log("Error with Desktop Notification!", err)
+				if task.project.Desktop_Notify == true {
+					err = note.Push()
+					if err != nil {
+						log("Error with Desktop Notification!", err)
 
+					}
 				}
+
+				task.triggers -= task.batchCount
+				task.batchCount = 0
+				task.wait = 0
 			}
 
 		}()
@@ -158,7 +166,6 @@ func (task *syncTask) Run(info *goauto.TaskInfo) (err error) {
 		task.wait = task.project.CoolDown
 		task.triggers++
 	}
-
 	return nil
 
 }
