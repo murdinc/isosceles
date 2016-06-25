@@ -5,7 +5,8 @@ import (
 	"io/ioutil"
 	"os/user"
 
-	"github.com/murdinc/cli"
+	"github.com/murdinc/terminal"
+
 	"gopkg.in/gcfg.v1"
 )
 
@@ -55,7 +56,7 @@ func ReadConfig() (*IsoscelsConfig, error) {
 
 // List all projects
 func (c *IsoscelsConfig) ListAllProjects() {
-	cli.PrintAnsi(ProjectsTemplate, c)
+	terminal.PrintAnsi(ProjectsTemplate, c)
 }
 
 func (c *IsoscelsConfig) ListEnabledProjects() {
@@ -67,7 +68,7 @@ func (c *IsoscelsConfig) ListEnabledProjects() {
 		}
 	}
 
-	cli.PrintAnsi(ProjectsTemplate, IsoscelsConfig{Project: p})
+	terminal.PrintAnsi(ProjectsTemplate, IsoscelsConfig{Project: p})
 }
 
 var ProjectsTemplate = `{{range $name, $project := .Project}}
@@ -101,6 +102,6 @@ func log(kind string, err error) {
 		fmt.Printf("%s\n", kind)
 	} else {
 		detail := err.Error()
-		cli.ShowErrorMessage(fmt.Sprintf("ERROR - %s", kind), detail)
+		terminal.ShowErrorMessage(fmt.Sprintf("ERROR - %s", kind), detail)
 	}
 }

@@ -19,7 +19,6 @@ func main() {
 		{
 			Name:        "active-sync",
 			ShortName:   "as",
-			Example:     "active-sync",
 			Description: "Actively syncs all configured local folders to their remote",
 			Action: func(c *cli.Context) {
 				log("Reading configuration file...", nil)
@@ -37,7 +36,6 @@ func main() {
 		{
 			Name:        "all-projects",
 			ShortName:   "ap",
-			Example:     "all-projects",
 			Description: "List all configured projects",
 			Action: func(c *cli.Context) {
 				cfg, err := config.ReadConfig()
@@ -50,7 +48,6 @@ func main() {
 		{
 			Name:        "enabled-projects",
 			ShortName:   "ep",
-			Example:     "enabled-projects",
 			Description: "List all enabled projects",
 			Action: func(c *cli.Context) {
 				cfg, err := config.ReadConfig()

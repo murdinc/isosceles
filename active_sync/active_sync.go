@@ -10,8 +10,8 @@ import (
 
 	"github.com/deckarep/gosx-notifier"
 	"github.com/dshills/goauto"
-	"github.com/murdinc/cli"
 	"github.com/murdinc/isosceles/config"
+	"github.com/murdinc/terminal"
 	"github.com/toqueteos/webbrowser"
 )
 
@@ -183,10 +183,10 @@ func log(kind string, err error) {
 func logdim(kind string, err error) {
 	if err == nil {
 		kind = kind + "\n"
-		cli.PrintAnsi(`{{ ansi "dim"}}{{ . }}{{ ansi ""}}`, kind)
+		terminal.PrintAnsi(`{{ ansi "dim"}}{{ . }}{{ ansi ""}}`, kind)
 	} else {
 		detail := err.Error()
-		cli.ShowErrorMessage(fmt.Sprintf("ERROR - %s", kind), detail)
+		terminal.ShowErrorMessage(fmt.Sprintf("ERROR - %s", kind), detail)
 		os.Exit(1)
 	}
 }
