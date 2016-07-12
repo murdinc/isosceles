@@ -4,9 +4,9 @@
 [![Build Status](https://travis-ci.org/murdinc/isosceles.svg)](https://travis-ci.org/murdinc/isosceles)
 
 ## Intro
-**isosceles** is a tool built out of a desire to work locally in an environment set up for remote development. I got tired of the lag of a mounted sshfs volume. It's main and only feature is "active-sync", currently - but I hope to add more utilities to it as needed.
+**isosceles** is a tool built out of a desire to work locally in an environment set up for remote development.
 
-To set up projects, add an .isosceles file to your user folder on OS X. An example is located in the example_config.isosceles file in this repo and at the end of the README. A compiled executable is located in the bin folder, if you don't want to run golang and compile it yourself.
+To set up projects, add an .isosceles file to your user folder on OS X. An example is located in the example_config.isosceles file in this repo and at the end of the README.
 
 ## Features
 * Watches an entire directory recursively for changes that match a specific pattern
@@ -16,6 +16,11 @@ To set up projects, add an .isosceles file to your user folder on OS X. An examp
 * Desktop Notifications can be enabled, with or without sound, for when triggers are processed.
 
 ## Installation
+
+
+## Development
+These steps are only required if you wish to develop on the isosceles code, or compile it yourself.
+
 1. Install Go (if you haven't already): https://golang.org/doc/install
 
 2. Download and install isosceles:
@@ -30,8 +35,10 @@ To set up projects, add an .isosceles file to your user folder on OS X. An examp
 
 ```
 $ go test github.com/murdinc/isosceles/...
-ok  	github.com/murdinc/isosceles	0.010s
+ok      github.com/murdinc/isosceles    0.010s
 ```
+
+
 
 ## Screenshots
 
@@ -54,42 +61,29 @@ ok  	github.com/murdinc/isosceles	0.010s
 **Example configuration: (goes in ~/.isosceles)**
 
 
-## Roadmap
-* tail of remote logs - WIP
-
 ## Example Config
 
 ```
 
-# isosceles config
-###############################################################################################
+[project "Project1"]
 
-[project "MacGruber1"]
-
-    # Enabled this project in active-sync
-    #################################################################
+    # Enabled Flag
     enabled = true
 
-    # Perform Initial Sync when active-sync is started?
-    #################################################################
-    initial-sync = true
-
-    # Host and Folders Information
-    #################################################################
+    # Host and Folders
     host = "host.name.com"
     local-folder = "/Users/USER/isosceles/PROJECT/"
     remote-folder = "/PROJECT/"
+    url = "http://www.host.name.com"
 
-    # Watch Pattern for file change triggers
-    #################################################################
-    watch-pattern = "(.*\\.php|.*\\.css|.*\\.html|.*\\.js)"
+    # Watch Pattern
+    watch-pattern = "(.*\\.php$|.*\\.css$|.*\\.html$|.*\\.js$)"
 
-    # Rsync Arguments, joined in order
-    #################################################################
+    # Rsync Arguments
     rsync-arg = "-l"
     rsync-arg = "-r"
     rsync-arg = "-O"
-    rsync-arg = "--dry-run"
+    #rsync-arg = "--dry-run"
     rsync-arg = "--stats"
     rsync-arg = "--progress"
     rsync-arg = "--delete"
@@ -98,30 +92,9 @@ ok  	github.com/murdinc/isosceles	0.010s
     rsync-arg = "--exclude=.git"
     rsync-arg = "--exclude=.git_ignore"
 
-    # Wait period (in seconds) between concurrent syncs, to allow for changes
-    # to batch together if there are a lot of files
-    #################################################################
-    cooldown = 1
+    # Wait between concurrent syncs, to allow for changes to batch together
+    cooldown = 1 # second
 
-    # Open the browser when active-sync is turned on
-    #################################################################
-    open-browser = true
-    url = "http://www.host.name.com"
-
-    # Mac OSX Notifications when sync triggers are executed
-    #################################################################
     desktop-notify = true
     desktop-notify-sound = true
-
-    # Enable/Disable log tails - todo
-    #################################################################
-    tail-error = true
-    tail-access = true
-    tail-extra = false
-
-    # Log paths
-    #################################################################
-    error-log = "/var/log/nginx/*.access.log"
-    access-log = "/var/log/nginx/*.error.log"
-    extra-log = ""
 

@@ -13,14 +13,14 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "isosceles"
-	app.Usage = "Remote Development Tool Roll"
-	app.Version = "1.0"
+	app.Usage = "Remote Development Tool"
+	app.Version = "1.1"
 	app.Commands = []cli.Command{
 		{
 			Name:        "active-sync",
 			ShortName:   "as",
 			Description: "Actively syncs all configured local folders to their remote",
-			Action: func(c *cli.Context) {
+			Action: func(c *cli.Context) error {
 				log("Reading configuration file...", nil)
 				cfg, err := config.ReadConfig()
 				if err != nil {
@@ -31,30 +31,33 @@ func main() {
 				cfg.ListEnabledProjects()
 				log("Starting Active Sync... press q + return to exit", nil)
 				active_sync.StartActiveSync(cfg) // blocking
+				return nil
 			},
 		},
 		{
 			Name:        "all-projects",
 			ShortName:   "ap",
 			Description: "List all configured projects",
-			Action: func(c *cli.Context) {
+			Action: func(c *cli.Context) error {
 				cfg, err := config.ReadConfig()
 				if err != nil {
 					log("Config File", err)
 				}
 				cfg.ListAllProjects()
+				return nil
 			},
 		},
 		{
 			Name:        "enabled-projects",
 			ShortName:   "ep",
 			Description: "List all enabled projects",
-			Action: func(c *cli.Context) {
+			Action: func(c *cli.Context) error {
 				cfg, err := config.ReadConfig()
 				if err != nil {
 					log("Config File", err)
 				}
 				cfg.ListEnabledProjects()
+				return nil
 			},
 		},
 	}

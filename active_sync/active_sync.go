@@ -68,10 +68,8 @@ func StartActiveSync(cfg *config.IsoscelsConfig) {
 		go p.Start()
 
 		// Run an initial sync
-		if meta.Initial_Sync == true {
-			logdim("  ╚═══ Running Initial Sync...", nil)
-			wf.Run(&goauto.TaskInfo{Src: "Initial Sync"})
-		}
+		logdim("  ╚═══ Running Initial Sync...", nil)
+		wf.Run(&goauto.TaskInfo{Src: "Initial Sync"})
 
 	}
 
