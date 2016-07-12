@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/murdinc/isosceles.svg)](https://travis-ci.org/murdinc/isosceles)
 
 ## Intro
-**isosceles** is a tool built out of a desire to work locally in an environment set up for remote development.
+**isosceles** is a tool built out of a desire to work locally in an environment set up for remote development. It's basically a wrapper for rsync that watches for file changes.
 
 To set up projects, add an .isosceles file to your user folder on OS X. An example is located in the example_config.isosceles file in this repo and at the end of the README.
 
@@ -16,6 +16,14 @@ To set up projects, add an .isosceles file to your user folder on OS X. An examp
 * Desktop Notifications can be enabled, with or without sound, for when triggers are processed.
 
 ## Installation
+1. Copy and paste the following into Terminal:
+
+  `wget https://github.com/murdinc/isosceles/releases/download/v1.1/isosceles -O isosceles.temp; mv isosceles.temp /usr/local/bin/isosceles; chmod 775 /usr/local/bin/isosceles;`
+
+2. Create an `.isosceles` file in your home directory (`~/.isosceles`) using the example configuration below. 
+
+3. Run the command `isosceles` to see the help menu and get started.   
+
 
 
 ## Development
