@@ -17,9 +17,9 @@ func main() {
 	app.Version = "1.1"
 	app.Commands = []cli.Command{
 		{
-			Name:        "active-sync",
-			ShortName:   "as",
-			Description: "Actively syncs all configured local folders to their remote",
+			Name:      "active-sync",
+			ShortName: "as",
+			Usage:     "Actively syncs all configured local folders to their remote",
 			Action: func(c *cli.Context) error {
 				log("Reading configuration file...", nil)
 				cfg, err := config.ReadConfig()
@@ -35,9 +35,9 @@ func main() {
 			},
 		},
 		{
-			Name:        "all-projects",
-			ShortName:   "ap",
-			Description: "List all configured projects",
+			Name:      "all-projects",
+			ShortName: "ap",
+			Usage:     "List all configured projects",
 			Action: func(c *cli.Context) error {
 				cfg, err := config.ReadConfig()
 				if err != nil {
@@ -48,9 +48,9 @@ func main() {
 			},
 		},
 		{
-			Name:        "enabled-projects",
-			ShortName:   "ep",
-			Description: "List all enabled projects",
+			Name:      "enabled-projects",
+			ShortName: "ep",
+			Usage:     "List all enabled projects",
 			Action: func(c *cli.Context) error {
 				cfg, err := config.ReadConfig()
 				if err != nil {
