@@ -20,9 +20,9 @@ To set up projects, add an .isosceles file to your user folder on OS X. An examp
 
   `wget https://github.com/murdinc/isosceles/releases/download/v1.1/isosceles -O isosceles.temp; mv isosceles.temp /usr/local/bin/isosceles; chmod 775 /usr/local/bin/isosceles;`
 
-2. Create an `.isosceles` file in your home directory (`~/.isosceles`) using the example configuration below. 
+2. Create an `.isosceles` file in your home directory (`~/.isosceles`) using the example configuration below.
 
-3. Run the command `isosceles` to see the help menu and get started.   
+3. Run the command `isosceles` to see the help menu and get started.
 
 
 
@@ -85,7 +85,7 @@ ok      github.com/murdinc/isosceles    0.010s
     url = "http://www.host.name.com"
 
     # Watch Pattern
-    watch-pattern = "(.*\\.php$|.*\\.css$|.*\\.html$|.*\\.js$)"
+    watch-pattern = "(.php|.css|.js|.sass|.html)"
 
     # Rsync Arguments
     rsync-arg = "-l"

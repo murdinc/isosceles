@@ -10,7 +10,7 @@
     url = "http://www.host.name.com"
 
     # Watch Pattern
-    watch-pattern = "(.*\\.php$|.*\\.css$|.*\\.html$|.*\\.js$)"
+    watch-pattern = "(.php|.css|.js|.sass|.html)"
 
     # Rsync Arguments
     rsync-arg = "-l"
