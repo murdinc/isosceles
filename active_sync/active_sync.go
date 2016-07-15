@@ -33,14 +33,19 @@ func StartActiveSync(cfg *config.IsoscelsConfig) {
 		defer p.Stop()
 
 		if meta.Enabled != true {
-			log(fmt.Sprintf("Skipping Project: [%s], since its disabled...", project), nil)
+			log(fmt.Sprintf("Skipping project: [%s] because its disabled.", project), nil)
+			continue
+		}
+
+		if meta.Valid != true {
+			log(fmt.Sprintf("Skipping project: [%s] because of a problem with the config", project), nil)
 			continue
 		}
 
 		log(fmt.Sprintf("Setting up Project: [%s]", project), nil)
-		logdim(fmt.Sprintf("  ╚═══ Recursively Watching Folder: [%s]...", meta.Local_Folder), nil)
-		logdim(fmt.Sprintf("  ╚═══ Syncing to Remote Folder: [%s]...", meta.Remote_Folder), nil)
-		logdim(fmt.Sprintf("  ╚═══ On Remote Host: [%s]...", meta.Host), nil)
+		logdim(fmt.Sprintf("  ╚═══ Recursively Watching Folder: [%s]", meta.Local_Folder), nil)
+		logdim(fmt.Sprintf("  ╚═══ Syncing to Remote Folder: [%s]", meta.Remote_Folder), nil)
+		logdim(fmt.Sprintf("  ╚═══ On Remote Host: [%s]", meta.Host), nil)
 		logdim(fmt.Sprintf("  ╚═══ With Cooldown Period: [%f] second(s).", float64(meta.CoolDown)), nil)
 
 		// Open URL in Browser
@@ -68,7 +73,7 @@ func StartActiveSync(cfg *config.IsoscelsConfig) {
 		go p.Start()
 
 		// Run an initial sync
-		logdim("  ╚═══ Running Initial Sync...", nil)
+		logdim("  ╚═══ Running Initial Sync", nil)
 		wf.Run(&goauto.TaskInfo{Src: "Initial Sync"})
 
 	}
@@ -112,7 +117,7 @@ func (task *syncTask) Run(info *goauto.TaskInfo) (err error) {
 
 				gocmd := exec.Command("rsync", rsyncArgs...)
 
-				logdim(fmt.Sprintf("[%s] Starting rsync...\n  ╚═══ cmd: rsync %s", task.name, strings.Join(rsyncArgs, " ")), nil)
+				logdim(fmt.Sprintf("[%s] Starting rsync\n  ╚═══ cmd: rsync %s", task.name, strings.Join(rsyncArgs, " ")), nil)
 
 				err := gocmd.Run()
 
@@ -131,7 +136,6 @@ func (task *syncTask) Run(info *goauto.TaskInfo) (err error) {
 						note.Sound = gosxnotifier.Bottle
 					}
 					note.Link = task.project.URL
-					note.AppIcon = "images/logo.png"
 					log(fmt.Sprintf("[%s] Completed Sync of [%d] trigger(s).", task.name, task.batchCount), nil)
 				} else {
 					note.Subtitle = "File Sync Failure!"
@@ -139,7 +143,6 @@ func (task *syncTask) Run(info *goauto.TaskInfo) (err error) {
 					if task.project.Desktop_Notify_Sound == true {
 						note.Sound = gosxnotifier.Sosumi
 					}
-					note.AppIcon = "images/logo-failure.png"
 					log("runSync", err)
 					log(fmt.Sprintf("[%s] Failed Sync of [%d] trigger(s).", task.name, task.batchCount), nil)
 				}
