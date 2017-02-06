@@ -16,13 +16,9 @@ To set up projects, add an .isosceles file to your user folder on OS X. An examp
 * Desktop Notifications can be enabled, with or without sound, for when triggers are processed.
 
 ## Installation
-1. Copy and paste the following into Terminal:
-
-  `wget https://github.com/murdinc/isosceles/releases/download/v1.1/isosceles -O isosceles.temp; mv isosceles.temp /usr/local/bin/isosceles; chmod 775 /usr/local/bin/isosceles;`
-
-2. Create an `.isosceles` file in your home directory (`~/.isosceles`) using the example configuration below.
-
-3. Run the command `isosceles` to see the help menu and get started.
+```
+curl -s http://dl.sudoba.sh/get/isosceles | sh
+```
 
 
 
